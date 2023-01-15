@@ -1,4 +1,4 @@
-defmodule Accounting.Migrations.CreateTablesMigration do
+defmodule Accounting.Migrations.V1 do
   use Ecto.Migration
 
   def change do
