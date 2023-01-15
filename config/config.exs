@@ -1,5 +1,11 @@
 import Config
 
-config :application, :ecto_repos, []
+config :accounting, ecto_repos: [Accounting.TestSupport.Repo]
 
-import_config("#{config_env()}.exs")
+config :accounting, Accounting.TestSupport.Repo,
+  database: "accounting_test",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  log: false

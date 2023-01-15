@@ -3,7 +3,7 @@ defmodule Accounting.RepoCase do
 
   using do
     quote do
-      alias Accounting.Repo
+      alias Accounting.TestSupport.Repo
 
       import Ecto
       import Ecto.Query
@@ -12,10 +12,10 @@ defmodule Accounting.RepoCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Accounting.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Accounting.TestSupport.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Accounting.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Accounting.TestSupport.Repo, {:shared, self()})
     end
 
     :ok
