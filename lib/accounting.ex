@@ -31,7 +31,7 @@ defmodule Accounting do
 
   alias Accounting.{Account, Entry, Transaction}
 
-  def repo, do: Application.fetch_env!(:accounting, :ecto_repo)
+  def repo, do: List.first(Application.fetch_env!(:accounting, :ecto_repos))
 
   @doc """
   Creates an account with the given attributes.
@@ -102,8 +102,11 @@ defmodule Accounting do
   You may optionally provide an `Ecto.Query` to further filter
   the entries from which the account balance will be calculated.
   """
-  @spec account_balance(Account.t() | binary() | non_neg_integer(), Ecto.Query.t()) :: {:ok, Decimal.t()} | {:error, :not_found}
-  def account_balance(%Account{} = account, entries_query \\ Entry) do
+  @spec account_balance(Account.t() | binary() | non_neg_integer(), Ecto.Query.t() | module()) ::
+          {:ok, Decimal.t()} | {:error, :not_found}
+  def account_balance(account, entries_query \\ Entry)
+
+  def account_balance(%Account{} = account, entries_query) do
     entries =
       entries_query
       |> where(account_id: ^account.id)
@@ -117,10 +120,10 @@ defmodule Accounting do
     {:ok, balance}
   end
 
-  def account_balance(account_id) do
+  def account_balance(account_id, entries_query) do
     case repo().get(Account, account_id) do
       nil -> {:error, :not_found}
-      account -> account_balance(account)
+      account -> account_balance(account, entries_query)
     end
   end
 end
