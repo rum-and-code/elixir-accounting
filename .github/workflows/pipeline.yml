@@ -41,6 +41,6 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-${{matrix.elixir_version}}-${{matrix.otp-version}}-mix-${{ hashFiles('**/api/mix.lock') }}
+          key: ${{ runner.os }}-${{matrix.elixir_version}}-${{matrix.otp_version}}-mix-${{ hashFiles('mix.lock') }}
       - run: mix deps.get
       - run: mix pipeline
