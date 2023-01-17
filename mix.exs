@@ -9,7 +9,8 @@ defmodule Accounting.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      aliases: aliases()
+      aliases: aliases(),
+      preferred_cli_env: [pipeline: :test]
     ]
   end
 
@@ -28,7 +29,7 @@ defmodule Accounting.MixProject do
       {:postgrex, ">= 0.0.0"},
 
       # Documentation
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
     ]
   end
 
@@ -36,6 +37,9 @@ defmodule Accounting.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp aliases do
-    [test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]]
+    [
+      pipeline: ["format --check-formatted", "compile --warnings-as-errors", "test"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+    ]
   end
 end

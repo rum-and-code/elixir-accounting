@@ -43,6 +43,4 @@ jobs:
             _build
           key: ${{ runner.os }}-${{matrix.elixir_version}}-${{matrix.otp-version}}-mix-${{ hashFiles('**/api/mix.lock') }}
       - run: mix deps.get
-      - run: mix compile --warnings-as-errors
-      - run: mix format --check-formatted
-      - run: MIX_ENV=test mix test
+      - run: mix pipeline
