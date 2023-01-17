@@ -3,7 +3,7 @@ defmodule Accounting do
   This library is a very basic implementation of a double-entry accounting system.
 
   Most of the ideas in here come from the
-  (Accounting for Developers)[https://www.moderntreasury.com/journal/accounting-for-developers-part-i]
+  [Accounting for Developers](https://www.moderntreasury.com/journal/accounting-for-developers-part-i)
   series. 
   You should definitely go ahead and read that before you go further.
   Everything will make more sense after that.

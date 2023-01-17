@@ -141,7 +141,7 @@ defmodule AccountingTest do
       seconds_in_a_day = 60 * 60 * 24
 
       today = NaiveDateTime.utc_now()
-      tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), seconds_in_a_day, :seconds)
+      tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), seconds_in_a_day, :second)
       after_tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), 2 * seconds_in_a_day, :second)
 
       amounts_by_date = %{
