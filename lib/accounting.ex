@@ -114,7 +114,7 @@ defmodule Accounting do
 
     balance =
       entries
-      |> Enum.map(&Account.entry_amount(account, &1))
+      |> Enum.map(&Entry.effective_amount(&1, account))
       |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
 
     {:ok, balance}
