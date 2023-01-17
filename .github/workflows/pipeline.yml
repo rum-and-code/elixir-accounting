@@ -14,7 +14,7 @@ jobs:
         otp_version: ['23', '24', '25']
         elixir_version: ['1.12', '1.13', '1.14']
 
-    name: CI pipeline (Elixir v${{matrix.elixir_version}})
+    name: CI pipeline (Elixir ${{matrix.elixir_version}} / OTP ${{matrix.otp_version}} )
     services:
       postgres:
         image: postgres:15
@@ -33,7 +33,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: erlef/setup-beam@v1
         with: 
+          otp-version: ${{matrix.otp_version}}
           elixir-version: ${{matrix.elixir_version}}
+      - name: Restore mix dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/api/mix.lock') }}
       - run: mix deps.get
       - run: mix format --check-formatted
       - run: mix test
