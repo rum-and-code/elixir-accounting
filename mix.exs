@@ -25,7 +25,10 @@ defmodule Accounting.MixProject do
     [
       # Database
       {:ecto_sql, "~> 3.7"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+
+      # Documentation
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
     ]
   end
 
@@ -33,6 +36,6 @@ defmodule Accounting.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp aliases do
-    [test: ["ecto.create --quiet", "ecto.migrate", "test"]]
+    [test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]]
   end
 end

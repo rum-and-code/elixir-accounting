@@ -1,4 +1,6 @@
 defmodule Accounting.Migrations.V1 do
+  @moduledoc false
+
   use Ecto.Migration
 
   def change do
