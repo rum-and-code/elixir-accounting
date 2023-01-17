@@ -41,6 +41,5 @@ defmodule Accounting.Transaction do
     else
       _ -> add_error(changeset, :entries, "must have at least 2 balanced entries")
     end
-
   end
 end
