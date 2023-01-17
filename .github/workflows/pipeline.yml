@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp_version: ['23.3', '24.3', '25.2']
-        elixir_version: ['1.12', '1.13', '1.14']
+        otp_version: ['24.3', '25.2']
+        elixir_version: ['1.13', '1.14']
 
     name: CI pipeline (Elixir ${{matrix.elixir_version}} / OTP ${{matrix.otp_version}} )
     services:
