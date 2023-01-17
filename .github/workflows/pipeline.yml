@@ -1,0 +1,39 @@
+name: CI pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        otp_version: ['23', '24', '25']
+        elixir_version: ['1.12', '1.13', '1.14']
+
+    name: CI pipeline (Elixir v${{matrix.elixir_version}})
+    services:
+      postgres:
+        image: postgres:15
+        ports: 
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: accounting_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
+        with: 
+          elixir-version: ${{matrix.elixir_version}}
+      - run: mix deps.get
+      - run: mix format --check-formatted
+      - run: mix test
