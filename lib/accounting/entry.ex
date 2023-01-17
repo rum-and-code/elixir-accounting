@@ -15,14 +15,17 @@ defmodule Accounting.Entry do
 
   @required ~w(
     account_id
-    description
     type
     amount
   )a
+
+  @optional ~w(
+    description
+  )a
   def changeset(entry \\ %Accounting.Entry{}, attrs) do
     entry
-    |> cast(attrs, @required)
+    |> cast(attrs, @required ++ @optional)
     |> validate_required(@required)
-    |> validate_number(:amount, min: 0)
+    |> validate_number(:amount, greater_than: 0)
   end
 end

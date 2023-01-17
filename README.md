@@ -4,13 +4,14 @@
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `accounting` to your list of dependencies in `mix.exs`:
+This library is a private repository in our Github organization.
+To include it in your project, add the dependency to the `deps` function 
+of your `mix.exs` file, pointing to this repository like so: 
 
 ```elixir
 def deps do
   [
-    {:accounting, "~> 0.1.0"}
+    {:accounting, git: "git@github.com:rum-and-code/elixir-accounting.git"},
   ]
 end
 ```

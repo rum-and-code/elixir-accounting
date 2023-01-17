@@ -11,17 +11,23 @@ defmodule Accounting.Transaction do
     timestamps()
   end
 
+  @required ~w(
+    date
+    description
+  )a
+
   def changeset(attrs) do
     %Accounting.Transaction{}
-    |> cast(attrs, [:date, :description])
+    |> cast(attrs, @required)
     |> cast_assoc(:entries)
+    |> validate_required(@required)
     |> validate_entries()
   end
 
   defp validate_entries(changeset) do
     {_, entries} = fetch_field(changeset, :entries)
 
-    %{debit: debit, credit: credit} =
+    sums_by_type =
       entries
       |> Enum.group_by(& &1.type)
       |> Enum.into(%{}, fn {type, entries} ->
@@ -29,10 +35,12 @@ defmodule Accounting.Transaction do
         {type, total}
       end)
 
-    if Decimal.equal?(debit, credit) do
+    with %{debit: debit, credit: credit} <- sums_by_type,
+         true <- Decimal.equal?(debit, credit) do
       changeset
     else
-      add_error(changeset, :entries, "Entries must balance")
+      _ -> add_error(changeset, :entries, "must have at least 2 balanced entries")
     end
+
   end
 end
