@@ -138,9 +138,11 @@ defmodule AccountingTest do
     end
 
     test("it accepts a query to filter entries by date", context) do
+      seconds_in_a_day = 60 * 60 * 24
+
       today = NaiveDateTime.utc_now()
-      tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), 1, :day)
-      after_tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), 2, :day)
+      tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), seconds_in_a_day, :seconds)
+      after_tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), 2 * seconds_in_a_day, :second)
 
       amounts_by_date = %{
         today => 100,
