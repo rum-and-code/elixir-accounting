@@ -41,7 +41,7 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/api/mix.lock') }}
+          key: ${{ runner.os }}-${{matrix.elixir_version}}-${{matrix.otp-version}}-mix-${{ hashFiles('**/api/mix.lock') }}
       - run: mix deps.get
       - run: mix format --check-formatted
       - run: MIX_ENV=test mix test
