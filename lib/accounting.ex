@@ -80,6 +80,19 @@ defmodule Accounting do
   end
 
   @doc """
+  Gets a transaction by id.
+  """
+  @spec get_transaction(non_neg_integer()) :: {:ok, Transaction.t()} | {:error, :not_found}
+  def get_transaction(id) do
+    Transaction
+    |> repo().get(id, preload: [entries: :account])
+    |> case do
+      nil -> {:error, :not_found}
+      transaction -> {:ok, transaction}
+    end
+  end
+
+  @doc """
   Creates a transaction with the given attributes.
   """
   @spec create_transaction(map()) :: {:ok, Transaction.t()} | {:error, Ecto.Changeset.t()}
@@ -87,6 +100,19 @@ defmodule Accounting do
     attrs
     |> Transaction.changeset()
     |> repo().insert()
+  end
+
+  @doc """
+  Deletes a transaction and all its entries.
+
+  In theory, we should never delete a transaction, but in some cases it might be useful.
+
+  We don't have the typycal accounting concept of "periods" and "closing",
+  so we allow transactions to be deleted if needed.
+  """
+  def delete_transaction(%Transaction{} = transaction) do
+    transaction = repo().preload(transaction, :entries)
+    repo().delete(transaction)
   end
 
   @doc """

@@ -166,6 +166,22 @@ defmodule AccountingTest do
     end
   end
 
+  describe("Accounting.delete_transaction/1") do
+    test("it deletes a transaction and all its entries", context) do
+      transaction = create_transaction(context, 100, 100)
+
+      assert {:ok, %Transaction{}} = Accounting.delete_transaction(transaction)
+      assert {:error, :not_found} = Accounting.get_transaction(transaction.id)
+
+      entries =
+        Entry
+        |> where(transaction_id: ^transaction.id)
+        |> Accounting.repo().all()
+
+      assert entries == []
+    end
+  end
+
   defp create_account(identifier, type) do
     {:ok, account} =
       Accounting.create_account(%{

@@ -6,7 +6,7 @@ defmodule Accounting.Transaction do
     field(:date, :naive_datetime)
     field(:description, :string)
 
-    has_many(:entries, Accounting.Entry)
+    has_many(:entries, Accounting.Entry, on_delete: :delete_all)
 
     timestamps()
   end
