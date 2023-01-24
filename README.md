@@ -21,7 +21,7 @@ of your `mix.exs` file, pointing to this repository like so:
 ```elixir
 def deps do
   [
-    {:accounting, git: "git@github.com:rum-and-code/elixir-accounting.git"},
+    {:accounting, github: "rum-and-code/elixir-accounting"},
   ]
 end
 ```
