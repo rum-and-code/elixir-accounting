@@ -14,7 +14,7 @@ The `Accounting` module has some documentation that goes into more details.
 
 ## Installation
 
-This library is a private repository in our Github organization.
+This library is not published as a Hex package.
 To include it in your project, add the dependency to the `deps` function 
 of your `mix.exs` file, pointing to this repository like so: 
 
@@ -55,4 +55,4 @@ Note that you will have to do that for each and every migration that this projec
 
 ## Usage
 
-TODO: document usage when it has been implemented in CRB
+TODO: document usage when it has been implemented in another project
