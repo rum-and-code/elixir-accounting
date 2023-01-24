@@ -1,5 +1,7 @@
 # Elixir Accounting
 
+🚧 ALPHA STATUS - use at your own risk 🚧 
+
 This library is the basis of a double-entry accounting system.
 
 Whenever you need to track money movements in a project, this library will help you build a system that makes sense from an accounting perspective.
