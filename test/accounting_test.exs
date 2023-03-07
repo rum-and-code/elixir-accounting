@@ -188,12 +188,21 @@ defmodule AccountingTest do
         create_transaction(context, amount, amount)
       end)
 
-      assert {:ok, balances} = Accounting.account_balances([context.cash_account.id, context.sales_account.id])
+      balances = Accounting.account_balances([context.cash_account.id, context.sales_account.id])
       expected_balance = Decimal.new(Enum.sum(amounts))
 
       assert balances == %{
                context.cash_account.id => expected_balance,
                context.sales_account.id => expected_balance
+             }
+
+      # it also accepts a key_fn to set resulting map's keys
+      balances =
+        Accounting.account_balances([context.cash_account.id, context.sales_account.id], key_fn: & &1.identifier)
+
+      assert balances == %{
+               context.cash_account.identifier => expected_balance,
+               context.sales_account.identifier => expected_balance
              }
     end
   end
