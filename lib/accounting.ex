@@ -138,12 +138,29 @@ defmodule Accounting do
       |> where(account_id: ^account.id)
       |> repo().all()
 
-    balance =
-      entries
-      |> Enum.map(&Entry.effective_amount(&1, account))
-      |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
+    {:ok, calculate_balance(account, entries)}
+  end
 
-    {:ok, balance}
+  def account_balance(account_ids, entries_query) when is_list(account_ids) do
+    accounts =
+      Account
+      |> where([a], a.id in ^account_ids)
+      |> repo().all()
+
+    entries =
+      entries_query
+      |> where([e], e.account_id in ^account_ids)
+      |> repo().all()
+
+    balances =
+      entries
+      |> Enum.group_by(& &1.account_id)
+      |> Enum.into(%{}, fn {account_id, entries} ->
+        account = Enum.find(accounts, &(&1.id == account_id))
+        {account_id, calculate_balance(account, entries)}
+      end)
+
+    {:ok, balances}
   end
 
   def account_balance(account_id, entries_query) do
@@ -151,5 +168,11 @@ defmodule Accounting do
       nil -> {:error, :not_found}
       account -> account_balance(account, entries_query)
     end
+  end
+
+  defp calculate_balance(%Account{} = account, entries) do
+    entries
+    |> Enum.map(&Entry.effective_amount(&1, account))
+    |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
   end
 end

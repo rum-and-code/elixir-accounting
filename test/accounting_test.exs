@@ -137,6 +137,22 @@ defmodule AccountingTest do
       assert sales_balance == Decimal.new(Enum.sum(amounts))
     end
 
+    test("it calculates the balance of multiple accounts", context) do
+      amounts = [100, 50, 25]
+
+      Enum.each(amounts, fn amount ->
+        create_transaction(context, amount, amount)
+      end)
+
+      assert {:ok, balances} = Accounting.account_balance([context.cash_account.id, context.sales_account.id])
+      expected_balance = Decimal.new(Enum.sum(amounts))
+
+      assert balances == %{
+               context.cash_account.id => expected_balance,
+               context.sales_account.id => expected_balance
+             }
+    end
+
     test("it accepts a query to filter entries by date", context) do
       seconds_in_a_day = 60 * 60 * 24
 
