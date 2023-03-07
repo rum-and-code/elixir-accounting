@@ -60,6 +60,20 @@ defmodule AccountingTest do
     end
   end
 
+  describe("Accounting.get_accounts_by_identifiers/1") do
+    test("it returns all accounts matching identifiers") do
+      account1 = create_account("account1", :debit)
+      account2 = create_account("account2", :credit)
+      account3 = create_account("account3", :debit)
+
+      assert [a1, a2, a3] = Accounting.get_accounts_by_identifiers(["account1", "account2", "account3"])
+
+      assert a1.id == account1.id
+      assert a2.id == account2.id
+      assert a3.id == account3.id
+    end
+  end
+
   describe("Accounting.create_transaction/1") do
     test("it can create a transaction", context) do
       attrs = %{
@@ -137,22 +151,6 @@ defmodule AccountingTest do
       assert sales_balance == Decimal.new(Enum.sum(amounts))
     end
 
-    test("it calculates the balance of multiple accounts", context) do
-      amounts = [100, 50, 25]
-
-      Enum.each(amounts, fn amount ->
-        create_transaction(context, amount, amount)
-      end)
-
-      assert {:ok, balances} = Accounting.account_balance([context.cash_account.id, context.sales_account.id])
-      expected_balance = Decimal.new(Enum.sum(amounts))
-
-      assert balances == %{
-               context.cash_account.id => expected_balance,
-               context.sales_account.id => expected_balance
-             }
-    end
-
     test("it accepts a query to filter entries by date", context) do
       seconds_in_a_day = 60 * 60 * 24
 
@@ -179,6 +177,24 @@ defmodule AccountingTest do
 
       assert {:ok, amount} = Accounting.account_balance(context.sales_account.id, query)
       assert amount == Decimal.new(75)
+    end
+  end
+
+  describe("Accounting.account_balances/2") do
+    test("it calculates the balance of multiple accounts", context) do
+      amounts = [100, 50, 25]
+
+      Enum.each(amounts, fn amount ->
+        create_transaction(context, amount, amount)
+      end)
+
+      assert {:ok, balances} = Accounting.account_balances([context.cash_account.id, context.sales_account.id])
+      expected_balance = Decimal.new(Enum.sum(amounts))
+
+      assert balances == %{
+               context.cash_account.id => expected_balance,
+               context.sales_account.id => expected_balance
+             }
     end
   end
 

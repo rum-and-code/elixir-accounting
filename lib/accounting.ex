@@ -80,6 +80,18 @@ defmodule Accounting do
   end
 
   @doc """
+  Gets multiple accounts by their identifiers.
+
+  Returns a list of correponding accounts, or an empty list if none were found.
+  """
+  @spec get_accounts_by_identifiers([binary()]) :: [Account.t()]
+  def get_accounts_by_identifiers(identifiers) do
+    Account
+    |> where([a], a.identifier in ^identifiers)
+    |> repo().all()
+  end
+
+  @doc """
   Gets a transaction by id.
   """
   @spec get_transaction(non_neg_integer()) :: {:ok, Transaction.t()} | {:error, :not_found}
@@ -141,11 +153,27 @@ defmodule Accounting do
     {:ok, calculate_balance(account, entries)}
   end
 
-  def account_balance(account_ids, entries_query) when is_list(account_ids) do
-    accounts =
-      Account
-      |> where([a], a.id in ^account_ids)
-      |> repo().all()
+  def account_balance(account_id, entries_query) do
+    case repo().get(Account, account_id) do
+      nil -> {:error, :not_found}
+      account -> account_balance(account, entries_query)
+    end
+  end
+
+  @doc """
+  Calculates the balance for multiple accounts. Works the same as `account_balance/2`,
+  but for multiple accounts at once.
+
+  Returns a map of account ids to their corresponding balance.
+  """
+  @spec account_balances([Account.t() | binary() | non_neg_integer()], Ecto.Query.t() | module()) ::
+          {:ok, %{non_neg_integer() => Decimal.t()}}
+  def account_balances(accounts, entries_query \\ Entry)
+
+  def account_balances([], _), do: {:ok, %{}}
+
+  def account_balances([%Account{} | _] = accounts, entries_query) do
+    account_ids = Enum.map(accounts, & &1.id)
 
     entries =
       entries_query
@@ -163,11 +191,13 @@ defmodule Accounting do
     {:ok, balances}
   end
 
-  def account_balance(account_id, entries_query) do
-    case repo().get(Account, account_id) do
-      nil -> {:error, :not_found}
-      account -> account_balance(account, entries_query)
-    end
+  def account_balances(account_ids, entries_query) when is_list(account_ids) do
+    accounts =
+      Account
+      |> where([a], a.id in ^account_ids)
+      |> repo().all()
+
+    account_balances(accounts, entries_query)
   end
 
   defp calculate_balance(%Account{} = account, entries) do
