@@ -80,6 +80,18 @@ defmodule Accounting do
   end
 
   @doc """
+  Gets multiple accounts by their identifiers.
+
+  Returns a list of correponding accounts, or an empty list if none were found.
+  """
+  @spec get_accounts_by_identifiers([binary()]) :: [Account.t()]
+  def get_accounts_by_identifiers(identifiers) do
+    Account
+    |> where([a], a.identifier in ^identifiers)
+    |> repo().all()
+  end
+
+  @doc """
   Gets a transaction by id.
   """
   @spec get_transaction(non_neg_integer()) :: {:ok, Transaction.t()} | {:error, :not_found}
@@ -141,33 +153,56 @@ defmodule Accounting do
     {:ok, calculate_balance(account, entries)}
   end
 
-  def account_balance(account_ids, entries_query) when is_list(account_ids) do
-    accounts =
-      Account
-      |> where([a], a.id in ^account_ids)
-      |> repo().all()
-
-    entries =
-      entries_query
-      |> where([e], e.account_id in ^account_ids)
-      |> repo().all()
-
-    balances =
-      entries
-      |> Enum.group_by(& &1.account_id)
-      |> Enum.into(%{}, fn {account_id, entries} ->
-        account = Enum.find(accounts, &(&1.id == account_id))
-        {account_id, calculate_balance(account, entries)}
-      end)
-
-    {:ok, balances}
-  end
-
   def account_balance(account_id, entries_query) do
     case repo().get(Account, account_id) do
       nil -> {:error, :not_found}
       account -> account_balance(account, entries_query)
     end
+  end
+
+  @doc """
+  Calculates the balance for multiple accounts. Works the same as `account_balance/2`,
+  but for multiple accounts at once.
+
+  Returns a map of account ids to their corresponding balance.
+  """
+  @spec account_balances([Account.t() | binary() | non_neg_integer()],
+          entries_query: Ecto.Query.t() | module(),
+          key_fn: (Account.t() -> any())
+        ) ::
+          %{non_neg_integer() => Decimal.t()}
+  def account_balances(accounts, opts \\ [entries_query: Entry, key_fn: & &1.id])
+
+  def account_balances([], _), do: {:ok, %{}}
+
+  def account_balances([%Account{} | _] = accounts, opts) do
+    opts =
+      opts
+      |> Keyword.put_new(:entries_query, Entry)
+      |> Keyword.put_new(:key_fn, & &1.id)
+
+    account_ids = Enum.map(accounts, & &1.id)
+
+    entries =
+      opts[:entries_query]
+      |> where([e], e.account_id in ^account_ids)
+      |> repo().all()
+
+    entries
+    |> Enum.group_by(& &1.account_id)
+    |> Enum.into(%{}, fn {account_id, entries} ->
+      account = Enum.find(accounts, &(&1.id == account_id))
+      {opts[:key_fn].(account), calculate_balance(account, entries)}
+    end)
+  end
+
+  def account_balances(account_ids, opts) when is_list(account_ids) do
+    accounts =
+      Account
+      |> where([a], a.id in ^account_ids)
+      |> repo().all()
+
+    account_balances(accounts, opts)
   end
 
   defp calculate_balance(%Account{} = account, entries) do
